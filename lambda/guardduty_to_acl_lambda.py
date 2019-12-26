@@ -251,6 +251,7 @@ def delete_netacl_rule(netacl_id, rule_no):
     else:
         return False
 
+
 def create_ddb_rule(netacl_id, host_ip, rule_no, region):
 
     ddb = boto3.resource('dynamodb')

@@ -68,7 +68,12 @@ def test_lambda_handler(apigw_event, mocker):
     dynamodb = boto3.client('dynamodb')
     dynamodb.create_table(
         TableName='hello',
-        KeySchema=[{'AttributeName': 'id', 'KeyType': 'HASH'}],
+        KeySchema=[
+            {
+                'AttributeName': 'id',
+                'KeyType': 'HASH'
+            }
+        ],
         AttributeDefinitions=[
             {
                 'AttributeName': 'id',
@@ -80,7 +85,7 @@ def test_lambda_handler(apigw_event, mocker):
             'WriteCapacityUnits': 10
         }
     )
-    item = {'id': {'S': '1'}, 'message': {'S': 'hello'}}
+    item = {'id': {'S': '1'}, 'timestamp': {'S': '2019-12-25 11:00:99'}, 'message': {'S': 'hello'}}
     dynamodb.put_item(TableName='hello', Item=item)
     
     ret = app.lambda_handler(apigw_event, "")
