@@ -2,7 +2,11 @@ import re, socket
 import apache_log_parser
 import logging
 import boto3
+import math, time
+import urllib.parse
 import os
+import json
+import io, gzip
 from datetime import datetime
 import enum
 logger = logging.getLogger()
@@ -34,6 +38,63 @@ class Bot:
             return socket.gethostbyaddr(self.ip)[0]
         except:
             return False
+
+
+class WAF:
+    # AWS WAF Classic
+    def __init__(self, client, ip_set_id, bot):
+        self.client = client
+        self.id = resource_id
+        self.bot = bot
+
+    @classmethod
+    def alb(cls, bot):
+        session = boto3.session.Session(region_name=os.getenv('AWS_REGION'))
+        waf_regional = session.client('waf-regional')
+        return cls(waf_regional, os.getenv('ALB_IP_SET_ID'), bot)
+
+    @classmethod
+    def cloudfront(cls, bot):
+        waf = boto3.client('waf')
+        return cls(waf, os.getenv('CF_IP_SET_ID'), bot)
+
+    @backoff
+    def ban(self):
+        self.client.update_ip_set(IPSetId=self.ip_set_id,
+            ChangeToken=self.client.get_change_token()['ChangeToken'],
+            Updates=[{
+                'Action': 'INSERT',
+                'IPSetDescriptor': {
+                    'Type': 'IPV4',
+                    'Value': self.bot.ip + "/32"
+                }
+            }]
+        )
+
+
+class NACL:
+    def __init__(self, nacl, bot):
+        self.nacl = nacl
+        self.bot = bot
+
+    @classmethod
+    def set(cls, bot):
+        ec2 = boto3.resource('ec2')
+        nacl = ec2.NetworkAcl(os.getenv('NACL_ID'))
+        return cls(nacl, bot)
+
+    def ban(self, rule_no):
+        self.nacl.create_entry(
+            CidrBlock=self.bot.ip + '/32',
+            Egress=False,
+            PortRange={
+                'From': 0,
+                'To': 65535
+            },
+            Protocol='-1',
+            RuleAction='deny',
+            RuleNumber=rule_no
+        )
 
 
 class DynamoDB:
