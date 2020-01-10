@@ -1,8 +1,6 @@
 import logging
 import boto3
 import os
-import json
-import io, gzip
 from datetime import datetime
 from .backoff import backoff
 from .apache_log import ApacheLog
@@ -84,21 +82,6 @@ class DynamoDB:
             'status': {'S': status}
         }
         self.client.put_item(TableName=self.table_name, Item=item)
-
-
-class ApacheLog:
-    apache_format = '%h (%{X-Forwarded-For}i) %l %u %t' \
-                    ' \"%r\" %>s %b \"%{Referer}i\" \"%{User-Agent}i\" %D'
-    log_parser = apache_log_parser.make_parser(apache_format)
-
-    def __init__(self, access_log):
-        self.access_log = access_log
-
-    @classmethod
-    def parse(cls, access_log):
-        return cls(
-            cls.log_parser(access_log)
-        )
 
 
 
