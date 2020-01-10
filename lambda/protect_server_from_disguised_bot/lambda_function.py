@@ -44,7 +44,7 @@ class WAF:
     # AWS WAF Classic
     def __init__(self, client, ip_set_id, bot):
         self.client = client
-        self.id = resource_id
+        self.ip_set_id = ip_set_id
         self.bot = bot
 
     @classmethod
