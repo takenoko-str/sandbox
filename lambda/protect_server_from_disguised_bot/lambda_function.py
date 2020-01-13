@@ -25,14 +25,13 @@ def lambda_handler(event, context):
             logger.info("ユーザエージェントが違います")
             continue
 
-        reverse_domain = bot.reverse_lookup()
-        if not reverse_domain:
+        if not bot.reverse_lookup():
             net_acl.deny(bot, ddb)
             waf.deny(bot)
             logger.warning("逆引きできないIPがGoogleBotを名乗っています")
             continue
 
-        if bot.is_google_domain(reverse_domain):
+        if bot.is_google_domain():
             ddb.allow(bot)
             logger.info("GoogleBotです")
         else:
