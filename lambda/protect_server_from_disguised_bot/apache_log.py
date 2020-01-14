@@ -22,8 +22,8 @@ class ApacheLog:
         access_log = json.loads(message).get('message')
         return cls.parse(access_log)
 
-    def useragent(self):
+    def ip(self):
         return self.access_log['request_header_x_forwarded_for']
 
-    def ip(self):
+    def useragent(self):
         return self.access_log['request_header_user_agent__browser__family']

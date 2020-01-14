@@ -12,8 +12,8 @@ class Bot:
     @classmethod
     def from_log(cls, log):
         return cls(
-            log.useragent(),
             log.ip(),
+            log.useragent(),
             None
         )
 
