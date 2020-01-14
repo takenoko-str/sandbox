@@ -29,5 +29,5 @@ class Bot:
         try:
             self.domain = socket.gethostbyaddr(self.ip)[0]
             return self.domain
-        except Exception as e:
+        except socket.herror:
             return

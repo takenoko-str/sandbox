@@ -65,8 +65,8 @@ class NetACL:
                 RuleAction='deny',
                 RuleNumber=ddb.max_rule_no + 1
             )
-        except Exception as e:
-            return False
+        except:
+            pass
         else:
             ddb.deny(bot)
 
