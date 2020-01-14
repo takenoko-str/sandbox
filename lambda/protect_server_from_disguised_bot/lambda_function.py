@@ -3,7 +3,7 @@ import os
 from apache_log import ApacheLog
 from s3 import S3
 from bot import Bot
-from db import WAF, NetACL, DynamoDB
+from db import WAF
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
@@ -14,8 +14,6 @@ def lambda_handler(event, context):
     logger.info('## EVENT')
     logger.info(event)
     access_logs = S3.from_trigger(event)
-    net_acl = NetACL.set()
-    ddb = DynamoDB(net_acl)
     waf = WAF.alb()
     for raw in access_logs:
         apache_log = ApacheLog.from_td(raw)
@@ -26,15 +24,11 @@ def lambda_handler(event, context):
             continue
 
         if not bot.reverse_lookup():
-            net_acl.deny(bot, ddb)
             waf.deny(bot)
             logger.warning("逆引きできないIPがGoogleBotを名乗っています")
             continue
 
-        if bot.is_google_domain():
-            ddb.allow(bot)
-            logger.info("GoogleBotです")
-        else:
-            net_acl.deny(bot, ddb)
+        if not bot.is_google_domain():
             waf.deny(bot)
             logger.info("このドメインはGoogleBotではありません")
+
