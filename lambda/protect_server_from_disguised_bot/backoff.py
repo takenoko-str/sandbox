@@ -6,7 +6,8 @@ logger.addHandler(NullHandler())
 logger.setLevel(INFO)
 logger.propagate = True
 
-API_CALL_NUM_RETRIES = 10
+API_CALL_NUM_RETRIES = 2
+
 
 # original retrying module
 def backoff(func):

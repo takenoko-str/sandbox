@@ -36,6 +36,20 @@ class WAF:
             }]
         )
 
+    @backoff
+    def allow(self, bot):
+        self.client.update_ip_set(
+            IPSetId=self.ip_set_id,
+            ChangeToken=self.client.get_change_token()['ChangeToken'],
+            Updates=[{
+                'Action': 'DELETE',
+                'IPSetDescriptor': {
+                    'Type': 'IPV4',
+                    'Value': bot.ip + "/32"
+                }
+            }]
+        )
+
 
 class NetACL:
     def __init__(self, net_acl):
